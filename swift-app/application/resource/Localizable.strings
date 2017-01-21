@@ -1,0 +1,10 @@
+/**
+ Localizble strings
+*/
+
+// Common
+okAction = "OK";
+loadingErrorMessage = "Failed to load data. Please try again later";
+
+// SearchPhotoViewController
+searchBarPlaceholder = "Search for photos by ID (1-100)";

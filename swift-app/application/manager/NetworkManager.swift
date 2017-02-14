@@ -26,9 +26,11 @@ protocol NetworkSocket: RequestType {
 }
 
 enum APIError: Error {
-    case offlineError
     case decodeError
     case httpError
+    case networkError
+    case timeoutError
+    case unknownError
 }
 
 extension GetRequest {
@@ -61,13 +63,29 @@ extension NetworkSocket {
                             observer.onNext(entity)
                             observer.onCompleted()
                         } else {
+                            #if DEBUG
+                                print("Himotoki::decodeArray failed")
+                            #endif
                             observer.onError(APIError.decodeError)
                         }
                     case .failure(let error):
                         #if DEBUG
                             print(error)
                         #endif
-                        observer.onError(error)
+                        
+                        if let _ = error as? AFError {
+                            observer.onError(APIError.httpError)
+                        } else if let error = error as? URLError {
+                            if error.code == .networkConnectionLost || error.code == .notConnectedToInternet {
+                                observer.onError(APIError.networkError)
+                            } else if error.code == .timedOut {
+                                observer.onError(APIError.timeoutError)
+                            } else {
+                                observer.onError(APIError.unknownError)
+                            }
+                        } else {
+                            observer.onError(APIError.unknownError)
+                        }
                     }
             }
             return Disposables.create { request.cancel() }

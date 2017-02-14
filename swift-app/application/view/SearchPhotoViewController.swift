@@ -41,6 +41,8 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.gray
         searchBar.showsCancelButton = true
         searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
+        searchBar.keyboardType = .decimalPad
+        searchBar.keyboardAppearance = .dark
         searchBar.delegate = self
         self.navigationItem.titleView = searchBar
         

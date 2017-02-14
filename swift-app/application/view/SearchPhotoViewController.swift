@@ -41,6 +41,8 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.gray
         searchBar.showsCancelButton = true
         searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
+        searchBar.keyboardType = .decimalPad
+        searchBar.keyboardAppearance = .dark
         searchBar.delegate = self
         self.navigationItem.titleView = searchBar
         
@@ -72,7 +74,7 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         
         if let thumbnailUrl = data.thumbnailUrl, let url = URL(string: thumbnailUrl) {
             cell.coverImage.kf.setImage(with: url) { [weak cell] (image, error, cachType, url) in
-                if let _ = image, let cell = cell {
+                if let cell = cell, error == nil {
                     cell.coverImage.clipsToBounds = true
                     cell.coverImage.contentMode = .scaleAspectFill
                 }
@@ -127,11 +129,11 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
             .observeOn(MainScheduler.instance)
             .throttle(0.3, scheduler: MainScheduler.instance)
             .flatMapLatest { [weak self] query -> Observable<[PhotoModel]> in
-                guard let sSelf = self, let albumId = Int(query.trimmingCharacters(in: .whitespaces)) else {
+                guard let strongSelf = self, let albumId = Int(query.trimmingCharacters(in: .whitespaces)) else {
                     return Observable.just([])
                 }
                 
-                return sSelf.viewModel.searchPhoto(albumId: albumId)
+                return strongSelf.viewModel.searchPhoto(albumId: albumId)
             }
             .subscribe()
             .addDisposableTo(disposeBag)
@@ -140,17 +142,17 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
             .observeOn(MainScheduler.instance)
             .subscribe(
                 onNext: { [weak self] result in
-                    guard let result = result, let sSelf = self else {
+                    guard let strongSelf = self, let result = result else {
                         return
                     }
                     
                     switch result {
                     case .success:
-                        sSelf.tableView.reloadData()
+                        strongSelf.tableView.reloadData()
                     case .failure(let errorMessage):
                         let alert = UIAlertController(title: errorMessage, message: nil, preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
-                        sSelf.present(alert, animated: true, completion: nil)
+                        strongSelf.present(alert, animated: true, completion: nil)
                     }
                 }
             ).addDisposableTo(disposeBag)

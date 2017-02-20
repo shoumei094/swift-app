@@ -20,7 +20,7 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
     private let viewModel = SearchPhotoViewModel()
     private let searchBar = UISearchBar()
     
-    private var aaa: [SearchPhotoEntity]? = nil
+    private var entity: [SearchPhotoEntity]? = nil
     
     // MARK: object lifecycle
     
@@ -64,11 +64,11 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return aaa?.count ?? 0
+        return entity?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let data = aaa?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
+        guard let data = entity?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
             return UITableViewCell()
         }
         
@@ -134,18 +134,18 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
             }
             .subscribe(
                 onNext: { [weak self] result in
-                    guard let strongSelf = self else {
+                    guard let strongSelf = self, !result.isEmpty else {
                         return
                     }
                     
-                    strongSelf.aaa = result
+                    strongSelf.entity = result
                     strongSelf.tableView.reloadData()
                 },
                 onError: { [weak self] error in
                     self?.handleError(error: error, completion: nil)
                 }
             )
-            .addDisposableTo(disposeBag)
+            .disposed(by: disposeBag)
     }
 }
 

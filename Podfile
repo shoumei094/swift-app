@@ -6,11 +6,11 @@ target 'swift-app' do
   use_frameworks!
 
   # Pods for swift-app
-  pod 'Alamofire', '~> 4.0.1'
+  pod 'Alamofire', '~> 4.3.0'
   pod 'Himotoki', '~> 3.0.0'
-  pod 'RxCocoa', '~> 3.1.0'
-  pod 'RxSwift', '~> 3.1.0'
-  pod 'Kingfisher', '~> 3.1.4'
+  pod 'RxCocoa', '~> 3.2.0'
+  pod 'RxSwift', '~> 3.2.0'
+  pod 'Kingfisher', '~> 3.4.0'
   pod 'R.swift'
 
   target 'swift-appTests' do

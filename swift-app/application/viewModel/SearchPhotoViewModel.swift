@@ -8,7 +8,6 @@
 
 import Foundation
 import RxSwift
-import RxCocoa
 
 struct SearchPhotoEntity {
     let albumId: Int

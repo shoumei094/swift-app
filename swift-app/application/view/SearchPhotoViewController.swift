@@ -72,21 +72,7 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
             return UITableViewCell()
         }
         
-        cell.title.text = data.title
-        cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
-        
-        if let thumbnailUrl = data.thumbnailUrl, let url = URL(string: thumbnailUrl) {
-            cell.coverImage.kf.setImage(with: url) { [weak cell] (image, error, cachType, url) in
-                if let cell = cell, error == nil {
-                    cell.coverImage.clipsToBounds = true
-                    cell.coverImage.contentMode = .scaleAspectFill
-                }
-            }
-        } else {
-            cell.coverImage.image = nil
-            cell.coverImage.clipsToBounds = false
-            cell.coverImage.contentMode = .scaleToFill
-        }
+        cell.setCell(data: data)
         
         return cell
     }

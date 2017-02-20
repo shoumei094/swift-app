@@ -20,6 +20,8 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
     private let viewModel = SearchPhotoViewModel()
     private let searchBar = UISearchBar()
     
+    private var aaa: [SearchPhotoEntity]? = nil
+    
     // MARK: object lifecycle
     
     deinit {
@@ -50,6 +52,7 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
         
+        
         // bind
         bind()
     }
@@ -61,11 +64,11 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.dto?.count ?? 0
+        return aaa?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let data = viewModel.dto?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
+        guard let data = aaa?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
             return UITableViewCell()
         }
         
@@ -108,6 +111,14 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         searchBar.endEditing(true)
     }
     
+    // MARK: CommonViewController
+    
+    override func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
+        let alert = UIAlertController(title: R.string.localizable.failedToLoadSearchResultsErrorMessage(), message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     // MARK: keyboard utility
     
     func keyboardWillShow(notification: NSNotification) {
@@ -128,34 +139,27 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         searchBar.rx.text.orEmpty.asObservable()
             .observeOn(MainScheduler.instance)
             .throttle(0.3, scheduler: MainScheduler.instance)
-            .flatMapLatest { [weak self] query -> Observable<[PhotoModel]> in
+            .flatMapLatest { [weak self] query -> Observable<[SearchPhotoEntity]> in
                 guard let strongSelf = self, let albumId = Int(query.trimmingCharacters(in: .whitespaces)) else {
                     return Observable.just([])
                 }
                 
                 return strongSelf.viewModel.searchPhoto(albumId: albumId)
             }
-            .subscribe()
-            .addDisposableTo(disposeBag)
-        
-        viewModel.status.asObservable()
-            .observeOn(MainScheduler.instance)
             .subscribe(
                 onNext: { [weak self] result in
-                    guard let strongSelf = self, let result = result else {
+                    guard let strongSelf = self else {
                         return
                     }
                     
-                    switch result {
-                    case .success:
-                        strongSelf.tableView.reloadData()
-                    case .failure(let errorMessage):
-                        let alert = UIAlertController(title: errorMessage, message: nil, preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
-                        strongSelf.present(alert, animated: true, completion: nil)
-                    }
+                    strongSelf.aaa = result
+                    strongSelf.tableView.reloadData()
+                },
+                onError: { [weak self] error in
+                    self?.handleError(error: error, completion: nil)
                 }
-            ).addDisposableTo(disposeBag)
+            )
+            .addDisposableTo(disposeBag)
     }
 }
 

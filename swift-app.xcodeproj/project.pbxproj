@@ -17,9 +17,9 @@
 		084EA5011DF41934007662AE /* R.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084EA5001DF41934007662AE /* R.generated.swift */; };
 		084EA5041DF41CA3007662AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 084EA5031DF41CA3007662AE /* Localizable.strings */; };
 		0857F3B91D9F79DC00561361 /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0857F3B81D9F79DC00561361 /* PhotoModel.swift */; };
-		0857F3CA1DA0D6F100561361 /* FontAwesome.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0857F3C91DA0D6F100561361 /* FontAwesome.otf */; };
 		086AE3BF1D8FD99100A90247 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086AE3BE1D8FD99100A90247 /* API.swift */; };
 		08AA4B021E3348FD00D4CFA3 /* CommonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */; };
+		08C6B3671E5AD81F003F80A5 /* APIErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */; };
 		08C92F9E1D8ED40A0056C74B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C92F9D1D8ED40A0056C74B /* AppDelegate.swift */; };
 		08C92FA51D8ED40A0056C74B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08C92FA41D8ED40A0056C74B /* Assets.xcassets */; };
 		08C92FB31D8ED40A0056C74B /* swift_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C92FB21D8ED40A0056C74B /* swift_appTests.swift */; };
@@ -63,9 +63,9 @@
 		0857F3BE1D9FC49500561361 /* swift-app-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "swift-app-Bridging-Header.h"; sourceTree = "<group>"; };
 		0857F3BF1D9FC49500561361 /* swift-appTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "swift-appTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		0857F3C01D9FC49500561361 /* swift-appUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "swift-appUITests-Bridging-Header.h"; sourceTree = "<group>"; };
-		0857F3C91DA0D6F100561361 /* FontAwesome.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = FontAwesome.otf; path = Pods/FontAwesomeKit/FontAwesomeKit/FontAwesome.otf; sourceTree = "<group>"; };
 		086AE3BE1D8FD99100A90247 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = API.swift; path = application/model/API.swift; sourceTree = "<group>"; };
 		08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommonViewController.swift; path = application/view/CommonViewController.swift; sourceTree = "<group>"; };
+		08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = APIErrorManager.swift; path = application/manager/APIErrorManager.swift; sourceTree = "<group>"; };
 		08C92F9A1D8ED40A0056C74B /* swift-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		08C92F9D1D8ED40A0056C74B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		08C92FA41D8ED40A0056C74B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -196,7 +196,6 @@
 				0857F3BF1D9FC49500561361 /* swift-appTests-Bridging-Header.h */,
 				0857F3C01D9FC49500561361 /* swift-appUITests-Bridging-Header.h */,
 				084EA5001DF41934007662AE /* R.generated.swift */,
-				0857F3C91DA0D6F100561361 /* FontAwesome.otf */,
 			);
 			sourceTree = "<group>";
 		};
@@ -244,6 +243,7 @@
 			children = (
 				08D949911E334DF7004E1DE9 /* AppSessionManager.swift */,
 				08D949921E334DF7004E1DE9 /* NetworkManager.swift */,
+				08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */,
 			);
 			name = manager;
 			sourceTree = "<group>";
@@ -391,7 +391,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0857F3CA1DA0D6F100561361 /* FontAwesome.otf in Resources */,
 				083E9E991D8ED66700FBCB88 /* Main.storyboard in Resources */,
 				084EA5041DF41CA3007662AE /* Localizable.strings in Resources */,
 				080D7CBD1D958950003D4CA2 /* SearchPhoto.storyboard in Resources */,
@@ -579,6 +578,7 @@
 				08D949941E334DF7004E1DE9 /* NetworkManager.swift in Sources */,
 				086AE3BF1D8FD99100A90247 /* API.swift in Sources */,
 				08C92F9E1D8ED40A0056C74B /* AppDelegate.swift in Sources */,
+				08C6B3671E5AD81F003F80A5 /* APIErrorManager.swift in Sources */,
 				08AA4B021E3348FD00D4CFA3 /* CommonViewController.swift in Sources */,
 				0857F3B91D9F79DC00561361 /* PhotoModel.swift in Sources */,
 				08D949931E334DF7004E1DE9 /* AppSessionManager.swift in Sources */,

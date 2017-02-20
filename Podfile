@@ -11,7 +11,6 @@ target 'swift-app' do
   pod 'RxCocoa', '~> 3.1.0'
   pod 'RxSwift', '~> 3.1.0'
   pod 'Kingfisher', '~> 3.1.4'
-  pod 'FontAwesomeKit', '~> 2.2.0'
   pod 'R.swift'
 
   target 'swift-appTests' do

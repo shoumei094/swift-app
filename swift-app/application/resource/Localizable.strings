@@ -4,7 +4,9 @@
 
 // Common
 okAction = "OK";
-loadingErrorMessage = "Failed to load data. Please try again later";
+genericErrorMessage = "Please try again later";
+networkConnectionErrorMessage = "Please check your internet connection and try again";
 
 // SearchPhotoViewController
 searchBarPlaceholder = "Search for photos by ID (1-100)";
+failedToLoadSearchResultsErrorMessage = "Failed to load search results. Please try again later";

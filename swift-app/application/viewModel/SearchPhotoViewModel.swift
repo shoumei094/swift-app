@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 
 struct SearchPhotoEntity {
     let albumId: Int
@@ -26,28 +27,8 @@ struct SearchPhotoEntity {
 }
 
 class SearchPhotoViewModel {
-    // MARK: flag
-    enum SearchStatus {
-        case success
-        case failure(errorMessage: String)
-    }
-    
-    // MARK: private
-    private(set) var status: Variable<SearchStatus?> = Variable(nil)
-    private(set) var dto: [SearchPhotoEntity]?
-    private let disposeBag = DisposeBag()
-    
-    // MARK: API request
-    func searchPhoto(albumId: Int) -> Observable<[PhotoModel]> {
+    func searchPhoto(albumId: Int) -> Observable<[SearchPhotoEntity]> {
         return API.searchPhoto(albumId: albumId)
-            .do(
-                onNext: { [weak self] results in
-                    self?.dto = results.map { SearchPhotoEntity($0) }
-                    self?.status.value = .success
-                },
-                onError: { [weak self] error in
-                    self?.status.value = .failure(errorMessage: R.string.localizable.loadingErrorMessage())
-                }
-            )
+            .flatMap { Observable.just($0.map { SearchPhotoEntity($0) }) }
     }
 }

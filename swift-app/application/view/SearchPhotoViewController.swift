@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 import Kingfisher
 
-class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class SearchPhotoViewController: CommonViewController, UITableViewDelegate, UISearchBarDelegate {
     // MARK: outlet
     @IBOutlet weak var tableView: UITableView!
     
@@ -34,7 +34,6 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         super.viewDidLoad()
         
         // table view configuration
-        tableView.dataSource = self
         tableView.delegate = self
         tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
         tableView.tableFooterView = UIView(frame: .zero)
@@ -52,29 +51,30 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
         NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
         
-        
-        // bind
-        bind()
-    }
-    
-    // MARK: UITableViewDataSource
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return entity?.count ?? 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let data = entity?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
-            return UITableViewCell()
-        }
-        
-        cell.setCell(data: data)
-        
-        return cell
+        // fetch search results
+        searchBar.rx.text.orEmpty
+            .asDriver()
+            .throttle(0.3)
+            .map { Int($0.trimmingCharacters(in: .whitespaces)) }
+            .filter { $0 != nil }
+            .map { $0! }
+            .flatMapLatest { [weak self] (albumId) -> Driver<[SearchPhotoEntity]> in
+                guard let strongSelf = self else {
+                    return Driver.just([])
+                }
+                
+                return strongSelf.viewModel.searchPhoto(albumId: albumId)
+                    .asDriver(
+                        onErrorRecover: { (error) in
+                            strongSelf.handleError(error: error, completion: nil)
+                            return Driver.just([])
+                        }
+                    )
+            }
+            .drive(tableView.rx.items(cellIdentifier: R.reuseIdentifier.searchPhotoCell.identifier, cellType: SearchPhotoCell.self)) { (_, item, cell) in
+                cell.setCell(data: item)
+            }
+            .disposed(by: disposeBag)
     }
     
     // MARK: UITableViewDelegate
@@ -117,35 +117,6 @@ class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UI
     
     func keyboardWillHide(notification: NSNotification) {
         tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
-    }
-    
-    // MARK: data binding
-    
-    func bind() {
-        searchBar.rx.text.orEmpty.asObservable()
-            .observeOn(MainScheduler.instance)
-            .throttle(0.3, scheduler: MainScheduler.instance)
-            .flatMapLatest { [weak self] query -> Observable<[SearchPhotoEntity]> in
-                guard let strongSelf = self, let albumId = Int(query.trimmingCharacters(in: .whitespaces)) else {
-                    return Observable.just([])
-                }
-                
-                return strongSelf.viewModel.searchPhoto(albumId: albumId)
-            }
-            .subscribe(
-                onNext: { [weak self] result in
-                    guard let strongSelf = self, !result.isEmpty else {
-                        return
-                    }
-                    
-                    strongSelf.entity = result
-                    strongSelf.tableView.reloadData()
-                },
-                onError: { [weak self] error in
-                    self?.handleError(error: error, completion: nil)
-                }
-            )
-            .disposed(by: disposeBag)
     }
 }
 

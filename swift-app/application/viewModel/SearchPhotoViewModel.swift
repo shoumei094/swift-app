@@ -28,6 +28,6 @@ struct SearchPhotoEntity {
 class SearchPhotoViewModel {
     func searchPhoto(albumId: Int) -> Observable<[SearchPhotoEntity]> {
         return API.searchPhoto(albumId: albumId)
-            .flatMap { Observable.just($0.map { SearchPhotoEntity($0) }) }
+            .map { $0.map { SearchPhotoEntity($0) } }
     }
 }

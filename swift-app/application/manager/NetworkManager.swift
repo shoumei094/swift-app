@@ -72,7 +72,6 @@ extension NetworkSocket {
                         #if DEBUG
                             print(error)
                         #endif
-                        
                         if let _ = error as? AFError {
                             observer.onError(APIError.httpError)
                         } else if let error = error as? URLError {

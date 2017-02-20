@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol APIErrorDelegate: class {
+protocol APIErrorDelegate {
     func handleError(error: Error, completion: (() -> Void)?)
 }

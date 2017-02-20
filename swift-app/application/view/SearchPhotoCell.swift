@@ -16,7 +16,7 @@ class SearchPhotoCell: UITableViewCell {
         title.text = data.title
         
         if let thumbnailUrl = data.thumbnailUrl, let url = URL(string: thumbnailUrl) {
-            coverImage.kf.setImage(with: url) { [weak self] (image, error, cachType, url) in
+            coverImage.kf.setImage(with: url) { [weak self] (_, error, _, _) in
                 if let strongSelf = self, error == nil {
                     strongSelf.coverImage.clipsToBounds = true
                     strongSelf.coverImage.contentMode = .scaleAspectFill

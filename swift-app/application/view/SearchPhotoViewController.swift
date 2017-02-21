@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 import Kingfisher
 
-class SearchPhotoViewController: CommonViewController, UITableViewDelegate, UISearchBarDelegate {
+class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
     // MARK: outlet
     @IBOutlet weak var tableView: UITableView!
     
@@ -19,8 +19,6 @@ class SearchPhotoViewController: CommonViewController, UITableViewDelegate, UISe
     private let disposeBag = DisposeBag()
     private let viewModel = SearchPhotoViewModel()
     private let searchBar = UISearchBar()
-    
-    private var entity: [SearchPhotoEntity]? = nil
     
     // MARK: object lifecycle
     
@@ -34,7 +32,6 @@ class SearchPhotoViewController: CommonViewController, UITableViewDelegate, UISe
         super.viewDidLoad()
         
         // table view configuration
-        tableView.delegate = self
         tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
         tableView.tableFooterView = UIView(frame: .zero)
         
@@ -75,16 +72,6 @@ class SearchPhotoViewController: CommonViewController, UITableViewDelegate, UISe
                 cell.setCell(data: item)
             }
             .disposed(by: disposeBag)
-    }
-    
-    // MARK: UITableViewDelegate
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 116.0
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO
     }
     
     // MARK: UISearchBarDelegate

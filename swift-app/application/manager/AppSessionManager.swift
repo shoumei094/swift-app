@@ -6,7 +6,6 @@
 //  Copyright © 2017 Shoumei Yamamoto. All rights reserved.
 //
 
-import Foundation
 import Alamofire
 
 class AppSessionManager {

@@ -6,8 +6,6 @@
 //  Copyright © 2017 Shoumei Yamamoto. All rights reserved.
 //
 
-import Foundation
-
 protocol APIErrorDelegate {
     func handleError(error: Error, completion: (() -> Void)?)
 }

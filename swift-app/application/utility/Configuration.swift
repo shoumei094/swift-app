@@ -6,8 +6,6 @@
 //  Copyright © 2016 Shoumei Yamamoto. All rights reserved.
 //
 
-import Foundation
-
 struct Configuration {
     static var baseUrl: String {
         return "https://jsonplaceholder.typicode.com"

@@ -9,7 +9,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import Kingfisher
 
 class SearchPhotoViewController: CommonViewController {
     // outlet
@@ -61,36 +60,6 @@ class SearchPhotoViewController: CommonViewController {
                 cell.setCell(data: item)
             }
             .disposed(by: disposeBag)
-        
-        // shrink table view size when the keyboard is shown
-        NotificationCenter.default.rx.notification(.UIKeyboardWillShow)
-            .subscribe(
-                onNext: { [weak self] (sender) in
-                    guard let strongSelf = self, let info = sender.userInfo, let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size else {
-                        return
-                    }
-                    
-                    let contentInsets = UIEdgeInsetsMake(0, 0, keyboardSize.height, 0)
-                    strongSelf.tableView.contentInset = contentInsets
-                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
-                }
-            )
-            .disposed(by: disposeBag)
-        
-        // revert table view size when the keyboard is hidden
-        NotificationCenter.default.rx.notification(.UIKeyboardWillHide)
-            .subscribe(
-                onNext: { [weak self] (sender) in
-                    guard let strongSelf = self else {
-                        return
-                    }
-                    
-                    let contentInsets = UIEdgeInsets.zero
-                    strongSelf.tableView.contentInset = contentInsets
-                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
-                }
-            )
-            .disposed(by: disposeBag)
     }
     
     // MARK: CommonViewController
@@ -101,4 +70,3 @@ class SearchPhotoViewController: CommonViewController {
         self.present(alert, animated: true, completion: nil)
     }
 }
-

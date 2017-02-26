@@ -6,7 +6,6 @@
 //  Copyright © 2016 Shoumei Yamamoto. All rights reserved.
 //
 
-import Foundation
 import RxSwift
 
 struct SearchPhotoEntity {

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class SearchPhotoCell: UITableViewCell {
     @IBOutlet weak var title: UILabel!

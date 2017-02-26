@@ -11,14 +11,13 @@ import RxSwift
 import RxCocoa
 import Kingfisher
 
-class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
-    // MARK: outlet
+class SearchPhotoViewController: CommonViewController {
+    // outlet
     @IBOutlet weak var tableView: UITableView!
     
-    // MARK: private
+    // private
     private let disposeBag = DisposeBag()
     private let viewModel = SearchPhotoViewModel()
-    private let searchBar = UISearchBar()
     
     // MARK: UIViewController
     
@@ -26,13 +25,12 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
         super.viewDidLoad()
         
         // search bar configuration
-        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.gray
-        searchBar.showsCancelButton = true
-        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        searchBar.keyboardType = .decimalPad
+        let searchBar = UISearchBar()
         searchBar.keyboardAppearance = .dark
-        searchBar.delegate = self
-        self.navigationItem.titleView = searchBar
+        searchBar.keyboardType = .decimalPad
+        searchBar.tintColor = UIColor.gray
+        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
+        navigationItem.titleView = searchBar
         
         // fetch search results
         searchBar.rx.text.orEmpty
@@ -67,7 +65,7 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
         // shrink table view size when the keyboard is shown
         NotificationCenter.default.rx.notification(.UIKeyboardWillShow)
             .subscribe(
-                onNext: { [weak self] sender in
+                onNext: { [weak self] (sender) in
                     guard let strongSelf = self, let info = sender.userInfo, let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size else {
                         return
                     }
@@ -82,7 +80,7 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
         // revert table view size when the keyboard is hidden
         NotificationCenter.default.rx.notification(.UIKeyboardWillHide)
             .subscribe(
-                onNext: { [weak self] sender in
+                onNext: { [weak self] (sender) in
                     guard let strongSelf = self else {
                         return
                     }
@@ -93,16 +91,6 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
                 }
             )
             .disposed(by: disposeBag)
-    }
-    
-    // MARK: UISearchBarDelegate
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
     }
     
     // MARK: CommonViewController

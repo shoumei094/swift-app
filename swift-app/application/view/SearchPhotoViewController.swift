@@ -20,19 +20,12 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
     private let viewModel = SearchPhotoViewModel()
     private let searchBar = UISearchBar()
     
-    // MARK: object lifecycle
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
     // MARK: UIViewController
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // table view configuration
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
         tableView.tableFooterView = UIView(frame: .zero)
         
         // search bar configuration
@@ -43,10 +36,6 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
         searchBar.keyboardAppearance = .dark
         searchBar.delegate = self
         self.navigationItem.titleView = searchBar
-        
-        // keyboard configuration
-        NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
         
         // fetch search results
         searchBar.rx.text.orEmpty
@@ -77,6 +66,36 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
                 cell.setCell(data: item)
             }
             .disposed(by: disposeBag)
+        
+        // shrink table view size when the keyboard is shown
+        NotificationCenter.default.rx.notification(.UIKeyboardWillShow)
+            .subscribe(
+                onNext: { [weak self] sender in
+                    guard let strongSelf = self, let info = sender.userInfo, let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size else {
+                        return
+                    }
+                    
+                    let contentInsets = UIEdgeInsetsMake(0, 0, keyboardSize.height, 0)
+                    strongSelf.tableView.contentInset = contentInsets
+                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
+                }
+            )
+            .disposed(by: disposeBag)
+        
+        // revert table view size when the keyboard is hidden
+        NotificationCenter.default.rx.notification(.UIKeyboardWillHide)
+            .subscribe(
+                onNext: { [weak self] sender in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    let contentInsets = UIEdgeInsets.zero
+                    strongSelf.tableView.contentInset = contentInsets
+                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
+                }
+            )
+            .disposed(by: disposeBag)
     }
     
     // MARK: UISearchBarDelegate
@@ -95,20 +114,6 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
         let alert = UIAlertController(title: R.string.localizable.failedToLoadSearchResultsErrorMessage(), message: nil, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
-    }
-    
-    // MARK: keyboard utility
-    
-    func keyboardWillShow(notification: NSNotification) {
-        var userInfo = notification.userInfo!
-        var keyboardFrame: CGRect = (userInfo[UIKeyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        keyboardFrame = self.view.convert(keyboardFrame, to: view as UIView?)
-        
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, keyboardFrame.size.height + 20, 0)
-    }
-    
-    func keyboardWillHide(notification: NSNotification) {
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
     }
 }
 

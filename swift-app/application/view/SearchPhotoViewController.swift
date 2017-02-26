@@ -11,151 +11,94 @@ import RxSwift
 import RxCocoa
 import Kingfisher
 
-class SearchPhotoViewController: CommonViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
-    // MARK: outlet
+class SearchPhotoViewController: CommonViewController {
+    // outlet
     @IBOutlet weak var tableView: UITableView!
     
-    // MARK: private
+    // private
     private let disposeBag = DisposeBag()
     private let viewModel = SearchPhotoViewModel()
-    private let searchBar = UISearchBar()
-    
-    // MARK: object lifecycle
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
     
     // MARK: UIViewController
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // table view configuration
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
-        tableView.tableFooterView = UIView(frame: .zero)
-        
         // search bar configuration
-        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.gray
-        searchBar.showsCancelButton = true
-        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        searchBar.keyboardType = .decimalPad
+        let searchBar = UISearchBar()
         searchBar.keyboardAppearance = .dark
-        searchBar.delegate = self
-        self.navigationItem.titleView = searchBar
+        searchBar.keyboardType = .decimalPad
+        searchBar.tintColor = UIColor.gray
+        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
+        navigationItem.titleView = searchBar
         
-        // keyboard configuration
-        NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(SearchPhotoViewController.keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
-        
-        // bind
-        bind()
-    }
-    
-    // MARK: UITableViewDataSource
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.dto?.count ?? 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let data = viewModel.dto?[indexPath.row], let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell) else {
-            return UITableViewCell()
-        }
-        
-        cell.title.text = data.title
-        cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
-        
-        if let thumbnailUrl = data.thumbnailUrl, let url = URL(string: thumbnailUrl) {
-            cell.coverImage.kf.setImage(with: url) { [weak cell] (image, error, cachType, url) in
-                if let cell = cell, error == nil {
-                    cell.coverImage.clipsToBounds = true
-                    cell.coverImage.contentMode = .scaleAspectFill
-                }
-            }
-        } else {
-            cell.coverImage.image = nil
-            cell.coverImage.clipsToBounds = false
-            cell.coverImage.contentMode = .scaleToFill
-        }
-        
-        return cell
-    }
-    
-    // MARK: UITableViewDelegate
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 116.0
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO
-    }
-    
-    // MARK: UISearchBarDelegate
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.endEditing(true)
-    }
-    
-    // MARK: keyboard utility
-    
-    func keyboardWillShow(notification: NSNotification) {
-        var userInfo = notification.userInfo!
-        var keyboardFrame: CGRect = (userInfo[UIKeyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        keyboardFrame = self.view.convert(keyboardFrame, to: view as UIView?)
-        
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, keyboardFrame.size.height + 20, 0)
-    }
-    
-    func keyboardWillHide(notification: NSNotification) {
-        tableView.contentInset = UIEdgeInsetsMake(0, 0, 20, 0)
-    }
-    
-    // MARK: data binding
-    
-    func bind() {
-        searchBar.rx.text.orEmpty.asObservable()
-            .observeOn(MainScheduler.instance)
-            .throttle(0.3, scheduler: MainScheduler.instance)
-            .flatMapLatest { [weak self] query -> Observable<[PhotoModel]> in
-                guard let strongSelf = self, let albumId = Int(query.trimmingCharacters(in: .whitespaces)) else {
-                    return Observable.just([])
+        // fetch search results
+        searchBar.rx.text.orEmpty
+            .asDriver()
+            .throttle(0.3)
+            .map { Int($0.trimmingCharacters(in: .whitespaces)) }
+            .filter { $0 != nil }
+            .map { $0! }
+            .flatMapLatest { [weak self] (albumId) -> Driver<[SearchPhotoEntity]> in
+                guard let strongSelf = self else {
+                    return Driver.just([])
                 }
                 
                 return strongSelf.viewModel.searchPhoto(albumId: albumId)
+                    .asDriver(
+                        onErrorRecover: { [weak self] (error) in
+                            self?.handleError(error: error, completion: nil)
+                            return Driver.just([])
+                        }
+                    )
+                    .do(
+                        onCompleted: { [weak self] in
+                            self?.tableView.setContentOffset(.zero, animated: false)
+                        }
+                    )
             }
-            .subscribe()
-            .addDisposableTo(disposeBag)
+            .drive(tableView.rx.items(cellIdentifier: R.reuseIdentifier.searchPhotoCell.identifier, cellType: SearchPhotoCell.self)) { (_, item, cell) in
+                cell.setCell(data: item)
+            }
+            .disposed(by: disposeBag)
         
-        viewModel.status.asObservable()
-            .observeOn(MainScheduler.instance)
+        // shrink table view size when the keyboard is shown
+        NotificationCenter.default.rx.notification(.UIKeyboardWillShow)
             .subscribe(
-                onNext: { [weak self] result in
-                    guard let strongSelf = self, let result = result else {
+                onNext: { [weak self] (sender) in
+                    guard let strongSelf = self, let info = sender.userInfo, let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue.size else {
                         return
                     }
                     
-                    switch result {
-                    case .success:
-                        strongSelf.tableView.reloadData()
-                    case .failure(let errorMessage):
-                        let alert = UIAlertController(title: errorMessage, message: nil, preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
-                        strongSelf.present(alert, animated: true, completion: nil)
-                    }
+                    let contentInsets = UIEdgeInsetsMake(0, 0, keyboardSize.height, 0)
+                    strongSelf.tableView.contentInset = contentInsets
+                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
                 }
-            ).addDisposableTo(disposeBag)
+            )
+            .disposed(by: disposeBag)
+        
+        // revert table view size when the keyboard is hidden
+        NotificationCenter.default.rx.notification(.UIKeyboardWillHide)
+            .subscribe(
+                onNext: { [weak self] (sender) in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    let contentInsets = UIEdgeInsets.zero
+                    strongSelf.tableView.contentInset = contentInsets
+                    strongSelf.tableView.scrollIndicatorInsets = contentInsets
+                }
+            )
+            .disposed(by: disposeBag)
+    }
+    
+    // MARK: CommonViewController
+    
+    override func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
+        let alert = UIAlertController(title: R.string.localizable.failedToLoadSearchResultsErrorMessage(), message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 

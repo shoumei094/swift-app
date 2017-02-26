@@ -6,7 +6,6 @@
 //  Copyright © 2016 Shoumei Yamamoto. All rights reserved.
 //
 
-import Alamofire
 import RxSwift
 
 struct API {

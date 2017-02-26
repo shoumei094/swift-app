@@ -23,15 +23,12 @@ class SearchPhotoViewController: CommonViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // search bar configuration
+        // configure search bar
         let searchBar = UISearchBar()
         searchBar.keyboardAppearance = .dark
         searchBar.keyboardType = .decimalPad
-        searchBar.tintColor = UIColor.gray
+        searchBar.tintColor = .gray
         searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        navigationItem.titleView = searchBar
-        
-        // fetch search results
         searchBar.rx.text.orEmpty
             .asDriver()
             .throttle(0.3)
@@ -60,6 +57,9 @@ class SearchPhotoViewController: CommonViewController {
                 cell.setCell(data: item)
             }
             .disposed(by: disposeBag)
+        
+        // place search bar inside of the navigation bar
+        navigationItem.titleView = searchBar
     }
     
     // MARK: CommonViewController

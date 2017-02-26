@@ -25,9 +25,6 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // table view configuration
-        tableView.tableFooterView = UIView(frame: .zero)
-        
         // search bar configuration
         UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.gray
         searchBar.showsCancelButton = true

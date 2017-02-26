@@ -62,9 +62,14 @@ class SearchPhotoViewController: CommonViewController, UISearchBarDelegate {
                 
                 return strongSelf.viewModel.searchPhoto(albumId: albumId)
                     .asDriver(
-                        onErrorRecover: { (error) in
-                            strongSelf.handleError(error: error, completion: nil)
+                        onErrorRecover: { [weak self] (error) in
+                            self?.handleError(error: error, completion: nil)
                             return Driver.just([])
+                        }
+                    )
+                    .do(
+                        onCompleted: { [weak self] in
+                            self?.tableView.setContentOffset(.zero, animated: false)
                         }
                     )
             }

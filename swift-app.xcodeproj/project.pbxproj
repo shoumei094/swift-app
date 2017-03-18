@@ -18,8 +18,9 @@
 		084EA5041DF41CA3007662AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 084EA5031DF41CA3007662AE /* Localizable.strings */; };
 		0857F3B91D9F79DC00561361 /* PhotoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0857F3B81D9F79DC00561361 /* PhotoModel.swift */; };
 		086AE3BF1D8FD99100A90247 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086AE3BE1D8FD99100A90247 /* API.swift */; };
+		089F10041E7D0AE20014AB95 /* PhotoArticle.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 089F10031E7D0AE20014AB95 /* PhotoArticle.storyboard */; };
+		089F10061E7D0CE80014AB95 /* PhotoArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089F10051E7D0CE80014AB95 /* PhotoArticleViewController.swift */; };
 		08AA4B021E3348FD00D4CFA3 /* CommonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */; };
-		08C6B3671E5AD81F003F80A5 /* APIErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */; };
 		08C92F9E1D8ED40A0056C74B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C92F9D1D8ED40A0056C74B /* AppDelegate.swift */; };
 		08C92FA51D8ED40A0056C74B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08C92FA41D8ED40A0056C74B /* Assets.xcassets */; };
 		08C92FB31D8ED40A0056C74B /* swift_appTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C92FB21D8ED40A0056C74B /* swift_appTests.swift */; };
@@ -61,8 +62,9 @@
 		084EA5031DF41CA3007662AE /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = application/resource/Localizable.strings; sourceTree = "<group>"; };
 		0857F3B81D9F79DC00561361 /* PhotoModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoModel.swift; path = application/model/PhotoModel.swift; sourceTree = "<group>"; };
 		086AE3BE1D8FD99100A90247 /* API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = API.swift; path = application/model/API.swift; sourceTree = "<group>"; };
+		089F10031E7D0AE20014AB95 /* PhotoArticle.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = PhotoArticle.storyboard; path = application/layout/PhotoArticle.storyboard; sourceTree = "<group>"; };
+		089F10051E7D0CE80014AB95 /* PhotoArticleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoArticleViewController.swift; path = application/view/PhotoArticleViewController.swift; sourceTree = "<group>"; };
 		08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CommonViewController.swift; path = application/view/CommonViewController.swift; sourceTree = "<group>"; };
-		08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = APIErrorManager.swift; path = application/manager/APIErrorManager.swift; sourceTree = "<group>"; };
 		08C92F9A1D8ED40A0056C74B /* swift-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		08C92F9D1D8ED40A0056C74B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		08C92FA41D8ED40A0056C74B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 				083E9E941D8ED66700FBCB88 /* LaunchScreen.storyboard */,
 				083E9E961D8ED66700FBCB88 /* Main.storyboard */,
 				080D7CBC1D958950003D4CA2 /* SearchPhoto.storyboard */,
+				089F10031E7D0AE20014AB95 /* PhotoArticle.storyboard */,
 			);
 			name = layout;
 			sourceTree = "<group>";
@@ -148,9 +151,10 @@
 		083E9E8B1D8ED5FC00FBCB88 /* view */ = {
 			isa = PBXGroup;
 			children = (
+				08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */,
 				083E9E8E1D8ED63C00FBCB88 /* SearchPhotoViewController.swift */,
 				083E9EA51D8F93BD00FBCB88 /* SearchPhotoCell.swift */,
-				08AA4B011E3348FD00D4CFA3 /* CommonViewController.swift */,
+				089F10051E7D0CE80014AB95 /* PhotoArticleViewController.swift */,
 			);
 			name = view;
 			sourceTree = "<group>";
@@ -237,7 +241,6 @@
 			children = (
 				08D949911E334DF7004E1DE9 /* AppSessionManager.swift */,
 				08D949921E334DF7004E1DE9 /* NetworkManager.swift */,
-				08C6B3661E5AD81F003F80A5 /* APIErrorManager.swift */,
 			);
 			name = manager;
 			sourceTree = "<group>";
@@ -389,6 +392,7 @@
 				084EA5041DF41CA3007662AE /* Localizable.strings in Resources */,
 				080D7CBD1D958950003D4CA2 /* SearchPhoto.storyboard in Resources */,
 				08C92FA51D8ED40A0056C74B /* Assets.xcassets in Resources */,
+				089F10041E7D0AE20014AB95 /* PhotoArticle.storyboard in Resources */,
 				083E9E981D8ED66700FBCB88 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -568,11 +572,11 @@
 				083E9EA61D8F93BD00FBCB88 /* SearchPhotoCell.swift in Sources */,
 				083E9EA41D8EEE7400FBCB88 /* SearchPhotoViewModel.swift in Sources */,
 				083E9E8F1D8ED63C00FBCB88 /* SearchPhotoViewController.swift in Sources */,
+				089F10061E7D0CE80014AB95 /* PhotoArticleViewController.swift in Sources */,
 				084EA5011DF41934007662AE /* R.generated.swift in Sources */,
 				08D949941E334DF7004E1DE9 /* NetworkManager.swift in Sources */,
 				086AE3BF1D8FD99100A90247 /* API.swift in Sources */,
 				08C92F9E1D8ED40A0056C74B /* AppDelegate.swift in Sources */,
-				08C6B3671E5AD81F003F80A5 /* APIErrorManager.swift in Sources */,
 				08AA4B021E3348FD00D4CFA3 /* CommonViewController.swift in Sources */,
 				0857F3B91D9F79DC00561361 /* PhotoModel.swift in Sources */,
 				08D949931E334DF7004E1DE9 /* AppSessionManager.swift in Sources */,

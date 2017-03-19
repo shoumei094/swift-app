@@ -18,11 +18,16 @@ class CommonViewController: UIViewController {
         }
         
         switch error {
-        case .decodeError, .httpError, .timeoutError, .unknownError:
+        case .decodeError, .httpError, .otherError:
             handleErrorExplicitly(error: error, completion: nil)
             break
         case .networkError:
             let alert = UIAlertController(title: R.string.localizable.networkConnectionErrorMessage(), message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            break
+        case .timeoutError:
+            let alert = UIAlertController(title: R.string.localizable.serverBusyErrorMessage(), message: nil, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
             break

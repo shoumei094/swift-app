@@ -78,11 +78,10 @@ struct UserModel: Decodable {
 
 struct UserModelSocket: NetworkSocket, GetRequest {
     typealias Model = UserModel
-    var path: String
+    var path = "/users"
     let id: Int
     
     init(id: Int) {
-        self.path = "/users"
         self.id = id
     }
     

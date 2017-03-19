@@ -24,11 +24,10 @@ struct AlbumModel: Decodable {
 
 struct AlbumModelSocket: NetworkSocket, GetRequest {
     typealias Model = AlbumModel
-    var path: String
+    var path = "/albums"
     let id: Int
     
     init(id: Int) {
-        self.path = "/albums"
         self.id = id
     }
     

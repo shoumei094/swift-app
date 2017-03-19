@@ -6,8 +6,9 @@
 okAction = "OK";
 genericErrorMessage = "Please try again later";
 networkConnectionErrorMessage = "Please check your internet connection and try again";
-serverBusyErrorMessage = "Server is currently busy\nPlease try later again";
+serverBusyErrorMessage = "Server is currently busy\nPlease try again later";
 loadErrorMessage = "Could not load results\nPlease try again later";
+displayErrorMessage = "Could not display page\nPlease try again later";
 
 // SearchPhotoViewController
 searchBarPlaceholder = "Search photos by album (1-100)";

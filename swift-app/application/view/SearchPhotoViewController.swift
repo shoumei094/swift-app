@@ -84,7 +84,7 @@ class SearchPhotoViewController: CommonViewController {
                         return
                     }
                     
-                    //viewController.id = entity.id
+                    viewController.id = entity.id
                     strongSelf.navigationController?.pushViewController(viewController, animated: true)
                 }
             )

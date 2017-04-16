@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class SearchPhotoViewController: CommonViewController {
+class SearchPhotoViewController: BaseViewController {
     // outlet
     @IBOutlet weak var tableView: UITableView!
     
@@ -45,12 +45,10 @@ class SearchPhotoViewController: CommonViewController {
         // load search results when text is entered in the search bar
         searchBar.rx.text.orEmpty
             .asDriver()
-            .throttle(0.3)
-            .map { Int($0.trimmingCharacters(in: .whitespaces)) }
-            .filter { $0 != nil }
-            .map { $0! }
+            .throttle(1)
+            .distinctUntilChanged()
             .flatMapLatest { [weak self] (albumId) -> Driver<[SearchPhotoEntity]> in
-                guard let strongSelf = self else {
+                guard let strongSelf = self, let albumId = Int(albumId.trimmingCharacters(in: .whitespaces)) else {
                     return Driver.just([])
                 }
                 
@@ -113,7 +111,7 @@ class SearchPhotoViewController: CommonViewController {
         searchBar.isUserInteractionEnabled = false
     }
     
-    // MARK: CommonViewController
+    // MARK: BaseViewController
     
     override func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
         let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)

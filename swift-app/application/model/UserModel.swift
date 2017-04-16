@@ -26,8 +26,8 @@ struct UserModel: Decodable {
         let geo: Geo?
         
         struct Geo: Decodable {
-            let lat: Double
-            let lng: Double
+            let lat: String
+            let lng: String
             
             static func decode(_ e: Extractor) throws -> Geo {
                 return try Geo(

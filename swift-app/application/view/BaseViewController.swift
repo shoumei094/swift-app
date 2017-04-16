@@ -1,5 +1,5 @@
 //
-//  CommonViewController.swift
+//  BaseViewController.swift
 //  swift-app
 //
 //  Created by Shoumei Yamamoto on 2017/01/21.
@@ -8,7 +8,16 @@
 
 import UIKit
 
-class CommonViewController: UIViewController {
+class BaseViewController: UIViewController {
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        self.navigationItem.backBarButtonItem = backBarButtonItem
+    }
+    
     func handleError(error: Error) {
         guard let error = error as? APIError else {
             let alert = UIAlertController(title: R.string.localizable.genericErrorMessage(), message: nil, preferredStyle: .alert)
@@ -36,13 +45,5 @@ class CommonViewController: UIViewController {
     
     func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
         // override in sub-class if necessary
-    }
-    
-    func popViewControllerOnAlertActionCompletion() {
-        let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default) { [weak self] _ in
-            _ = self?.navigationController?.popViewController(animated: true)
-        })
-        self.present(alert, animated: true, completion: nil)
     }
 }

@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class PhotoArticleViewController: CommonViewController {
+class PhotoArticleViewController: BaseViewController {
     // outlet
     
     // private
@@ -38,11 +38,14 @@ class PhotoArticleViewController: CommonViewController {
             .disposed(by: disposeBag)
     }
     
-    // MARK: CommonViewController
+    // MARK: BaseViewController
     
     override func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
         let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default) { [weak self] _ in
+                _ = self?.navigationController?.popViewController(animated: true)
+            }
+        )
         self.present(alert, animated: true, completion: nil)
     }
 }

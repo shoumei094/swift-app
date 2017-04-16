@@ -39,6 +39,8 @@ class PhotoArticleViewModel {
                 }
                 return Observable.empty()
             }
+            .shareReplay(1)
+        
         let userObservable = photoObservable
             .flatMap { API.searchAlbum(id: $0.albumId)
                 .flatMap { (result) -> Observable<AlbumModel> in

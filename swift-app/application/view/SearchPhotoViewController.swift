@@ -17,7 +17,6 @@ class SearchPhotoViewController: BaseViewController {
     // private
     private let searchBar = UISearchBar()
     private let disposeBag = DisposeBag()
-    private let viewModel = SearchPhotoViewModel()
     
     // MARK: UIViewController
     
@@ -47,12 +46,12 @@ class SearchPhotoViewController: BaseViewController {
             .asDriver()
             .throttle(1)
             .distinctUntilChanged()
-            .flatMapLatest { [weak self] (albumId) -> Driver<[SearchPhotoEntity]> in
-                guard let strongSelf = self, let albumId = Int(albumId.trimmingCharacters(in: .whitespaces)) else {
+            .flatMapLatest { (albumId) -> Driver<[SearchPhotoEntity]> in
+                guard let albumId = Int(albumId.trimmingCharacters(in: .whitespaces)) else {
                     return Driver.just([])
                 }
                 
-                return strongSelf.viewModel.searchPhoto(albumId: albumId)
+                return SearchPhotoViewModel.searchPhoto(albumId: albumId)
                     .asDriver(
                         onErrorRecover: { [weak self] (error) in
                             self?.handleError(error: error)

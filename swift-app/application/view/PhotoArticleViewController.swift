@@ -15,7 +15,6 @@ class PhotoArticleViewController: BaseViewController {
     
     // private
     private let disposeBag = DisposeBag()
-    private let viewModel = PhotoArticleViewModel()
     
     // public
     var id: Int?
@@ -25,7 +24,7 @@ class PhotoArticleViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        viewModel.getPhotoArticle(id: id)
+        PhotoArticleViewModel.getPhotoArticle(id: id)
             .asDriver(
                 onErrorRecover: { [weak self] (error) in
                     self?.handleError(error: error)

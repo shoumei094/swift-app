@@ -13,6 +13,7 @@ struct PhotoArticleEntity {
     let id: Int
     let userId: Int
     let name: String
+    let website: String?
     let title: String
     let url: String?
     
@@ -21,13 +22,14 @@ struct PhotoArticleEntity {
         self.id = photoEntity.id
         self.userId = userEntity.id
         self.name = userEntity.name
+        self.website = userEntity.website
         self.title = photoEntity.title
         self.url = photoEntity.url
     }
 }
 
-class PhotoArticleViewModel {
-    func getPhotoArticle(id: Int?) -> Observable<PhotoArticleEntity> {
+struct PhotoArticleViewModel {
+    static func getPhotoArticle(id: Int?) -> Observable<PhotoArticleEntity> {
         guard let id = id else {
             return Observable.error(APIError.otherError)
         }

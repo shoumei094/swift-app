@@ -24,8 +24,8 @@ struct SearchPhotoEntity {
     }
 }
 
-class SearchPhotoViewModel {
-    func searchPhoto(albumId: Int) -> Observable<[SearchPhotoEntity]> {
+struct SearchPhotoViewModel {
+    static func searchPhoto(albumId: Int) -> Observable<[SearchPhotoEntity]> {
         return API.searchPhoto(albumId: albumId)
             .map { $0.map { SearchPhotoEntity($0) } }
     }

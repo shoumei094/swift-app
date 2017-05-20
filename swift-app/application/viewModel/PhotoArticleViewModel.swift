@@ -15,6 +15,7 @@ struct PhotoArticleEntity {
     let name: String
     let website: String?
     let title: String
+    let description: String
     let url: String?
     
     init(_ photoEntity: PhotoModel, _ userEntity: UserModel) {
@@ -24,6 +25,7 @@ struct PhotoArticleEntity {
         self.name = userEntity.name
         self.website = userEntity.website
         self.title = photoEntity.title
+        self.description = [String](repeating: photoEntity.title, count: 3).joined(separator: " ")
         self.url = photoEntity.url
     }
 }

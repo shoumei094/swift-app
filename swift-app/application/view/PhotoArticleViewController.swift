@@ -12,6 +12,10 @@ import RxCocoa
 
 class PhotoArticleViewController: BaseViewController {
     // outlet
+    @IBOutlet weak var coverImage: UIImageView!
+    @IBOutlet weak var articleTitle: UITextView!
+    @IBOutlet weak var username: UITextField!
+    @IBOutlet weak var articleDescription: UITextView!
     
     // private
     private let disposeBag = DisposeBag()
@@ -32,9 +36,35 @@ class PhotoArticleViewController: BaseViewController {
                 }
             )
             .drive(
-                onNext: { print($0) }
+                onNext: { [weak self] entity in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    if let imageUrl = entity.url, let url = URL(string: imageUrl) {
+                        strongSelf.coverImage.kf.setImage(with: url) { [weak self] (_, error, _, _) in
+                            if let strongSelf = self, error == nil {
+                                strongSelf.coverImage.clipsToBounds = true
+                                strongSelf.coverImage.contentMode = .scaleAspectFill
+                            }
+                        }
+                    } else {
+                        strongSelf.coverImage.image = nil
+                        strongSelf.coverImage.clipsToBounds = false
+                        strongSelf.coverImage.contentMode = .scaleToFill
+                    }
+                    strongSelf.articleTitle.text = entity.title
+                    strongSelf.username.text = entity.name
+                    strongSelf.articleDescription.text = entity.description
+                }
             )
             .disposed(by: disposeBag)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        articleDescription.setContentOffset(.zero, animated: false)
+        
     }
     
     // MARK: BaseViewController

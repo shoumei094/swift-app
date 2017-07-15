@@ -30,7 +30,7 @@ enum APIError: Error {
     case httpError
     case networkError
     case timeoutError
-    case unknownError
+    case otherError
 }
 
 extension GetRequest {
@@ -80,10 +80,10 @@ extension NetworkSocket {
                             } else if error.code == .timedOut {
                                 observer.onError(APIError.timeoutError)
                             } else {
-                                observer.onError(APIError.unknownError)
+                                observer.onError(APIError.otherError)
                             }
                         } else {
-                            observer.onError(APIError.unknownError)
+                            observer.onError(APIError.otherError)
                         }
                     }
             }

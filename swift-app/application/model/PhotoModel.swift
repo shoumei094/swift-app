@@ -11,7 +11,7 @@ import Himotoki
 struct PhotoModel: Decodable {
     let albumId: Int
     let id: Int
-    let title: String?
+    let title: String
     let url: String?
     let thumbnailUrl: String?
     
@@ -19,7 +19,7 @@ struct PhotoModel: Decodable {
         return try PhotoModel(
             albumId:        e <| "albumId",
             id:             e <| "id",
-            title:          e <|? "title",
+            title:          e <| "title",
             url:            e <|? "url",
             thumbnailUrl:   e <|? "thumbnailUrl"
         )
@@ -28,17 +28,24 @@ struct PhotoModel: Decodable {
 
 struct PhotoModelSocket: NetworkSocket, GetRequest {
     typealias Model = PhotoModel
-    var path: String
-    let albumId: Int
+    var path = "/photos"
+    let albumId: Int?
+    let id: Int?
     
     init(albumId: Int) {
-        self.path = "/photos"
         self.albumId = albumId
+        self.id = nil
+    }
+    
+    init(id: Int) {
+        self.albumId = nil
+        self.id = id
     }
     
     var parameters: [String: AnyObject]? {
         var params: [String: AnyObject] = [:]
         params["albumId"] = albumId as AnyObject?
+        params["id"] = id as AnyObject?
         return params
     }
 }

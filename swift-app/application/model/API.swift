@@ -12,5 +12,17 @@ struct API {
     static func searchPhoto(albumId: Int) -> Observable<[PhotoModel]> {
         return PhotoModelSocket(albumId: albumId).call()
     }
+    
+    static func searchPhoto(id: Int) -> Observable<[PhotoModel]> {
+        return PhotoModelSocket(id: id).call()
+    }
+    
+    static func searchAlbum(id: Int) -> Observable<[AlbumModel]> {
+        return AlbumModelSocket(id: id).call()
+    }
+    
+    static func searchUser(id: Int) -> Observable<[UserModel]> {
+        return UserModelSocket(id: id).call()
+    }
 }
 

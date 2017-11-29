@@ -8,7 +8,7 @@
 
 import Himotoki
 
-struct PhotoModel: Decodable {
+struct PhotoModel: Himotoki.Decodable {
     let albumId: Int
     let id: Int
     let title: String

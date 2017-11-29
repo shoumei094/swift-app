@@ -8,7 +8,7 @@
 
 import Himotoki
 
-struct UserModel: Decodable {
+struct UserModel: Himotoki.Decodable {
     let id: Int
     let name: String
     let username: String
@@ -18,14 +18,14 @@ struct UserModel: Decodable {
     let website: String?
     let company: Company?
     
-    struct Address: Decodable {
+    struct Address: Himotoki.Decodable {
         let street: String
         let suite: String?
         let city: String
         let zipcode: String
         let geo: Geo?
         
-        struct Geo: Decodable {
+        struct Geo: Himotoki.Decodable {
             let lat: String
             let lng: String
             
@@ -48,7 +48,7 @@ struct UserModel: Decodable {
         }
     }
     
-    struct Company: Decodable {
+    struct Company: Himotoki.Decodable {
         let name: String
         let catchPhrase: String?
         let bs: String?

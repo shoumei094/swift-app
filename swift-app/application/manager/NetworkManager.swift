@@ -11,7 +11,7 @@ import RxSwift
 import Himotoki
 
 protocol RequestType {
-    associatedtype Model: Decodable
+    associatedtype Model: Himotoki.Decodable
     var parameters: [String: AnyObject]? { get }
     var baseUrl: String { get }
     var path: String { get }

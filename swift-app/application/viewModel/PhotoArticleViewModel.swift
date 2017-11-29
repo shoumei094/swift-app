@@ -43,7 +43,7 @@ struct PhotoArticleViewModel {
                 }
                 return Observable.empty()
             }
-            .shareReplay(1)
+            .share(replay: 1)
         
         let userObservable = photoObservable
             .flatMap { API.searchAlbum(id: $0.albumId)
@@ -63,6 +63,6 @@ struct PhotoArticleViewModel {
                 }
             }
         
-        return Observable.zip(photoObservable, userObservable) { PhotoArticleEntity($0.0, $0.1) }
+        return Observable.zip(photoObservable, userObservable) { PhotoArticleEntity($0, $1) }
     }
 }

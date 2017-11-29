@@ -53,21 +53,30 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
             .disposed(by: disposeBag)
         
         // API calls
-        let firstPhotoObservable = viewModel.searchFirstPhoto(albumId: initialAlbumId)
-        let photoObservable = viewModel.searchPhoto(albumId: initialAlbumId)
-        let searchObservable = searchBar.rx.searchButtonClicked
-            .flatMapLatest { [weak self] _ -> Observable<[SearchPhotoEntity]> in
-                guard let `self` = self else {
-                    return Observable.empty()
+        let firstPhotoDriver = viewModel.searchFirstPhoto(albumId: initialAlbumId)
+            .asDriver(onErrorJustReturn: nil)
+        let photoDriver = viewModel.searchPhoto(albumId: initialAlbumId)
+            .asDriver(
+                onErrorRecover: { [weak self] error in
+                    self?.handleError(error: error)
+                    return Driver.just([])
                 }
-                return self.viewModel.searchPhoto(albumId: self.searchBar.text)
+            )
+        let searchDriver = searchBar.rx.searchButtonClicked
+            .flatMapLatest { [weak self] _ in
+                return self?.viewModel.searchPhoto(albumId: self?.searchBar.text) ?? Observable.empty()
             }
+            .asDriver(
+                onErrorRecover: { [weak self] error in
+                    self?.handleError(error: error)
+                    return Driver.just([])
+                }
+            )
         
         // populate table view
-        Observable.combineLatest(firstPhotoObservable, Observable.merge(photoObservable, searchObservable)) { ($0, $1) }
+        Driver.combineLatest(firstPhotoDriver, Driver.merge(photoDriver, searchDriver)) { ($0, $1) }
             .filter { $0.0.map { _ in true } ?? false && !$0.1.isEmpty }
-            .observeOn(MainScheduler.instance)
-            .subscribe(
+            .drive(
                 onNext: { [weak self] (firstPhoto, photo) in
                     guard let `self` = self else {
                         return
@@ -75,9 +84,6 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
                     self.firstPhoto = firstPhoto
                     self.photo = photo
                     self.tableView.reloadData()
-                },
-                onError: { [weak self] error in
-                    self?.handleError(error: error)
                 }
             )
             .disposed(by: disposeBag)
@@ -129,16 +135,15 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
                 cell.setCell(data: entity)
                 return cell
             }
-            return UITableViewCell()
         case Section.list.rawValue:
             if let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell.identifier) as? SearchPhotoCell  {
                 cell.setCell(data: photo[indexPath.row])
                 return cell
             }
-            return UITableViewCell()
         default:
-            return UITableViewCell()
+            break
         }
+        return UITableViewCell()
     }
     
     // MARK: UITableViewDelegate

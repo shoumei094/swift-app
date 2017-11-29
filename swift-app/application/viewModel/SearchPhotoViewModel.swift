@@ -35,7 +35,6 @@ class SearchPhotoViewModel {
         
         return API.searchPhoto(albumId: targetAlbumId)
             .map { $0.map { SearchPhotoEntity($0) }.first }
-            .observeOn(MainScheduler.instance)
     }
     
     func searchPhoto(albumId: String?) -> Observable<[SearchPhotoEntity]> {
@@ -48,6 +47,5 @@ class SearchPhotoViewModel {
         
         return API.searchPhoto(albumId: targetAlbumId)
             .map { $0.map { SearchPhotoEntity($0) } }
-            .observeOn(MainScheduler.instance)
     }
 }

@@ -24,9 +24,28 @@ struct SearchPhotoEntity {
     }
 }
 
-struct SearchPhotoViewModel {
-    static func searchPhoto(albumId: Int) -> Observable<[SearchPhotoEntity]> {
-        return API.searchPhoto(albumId: albumId)
+class SearchPhotoViewModel {
+    func searchFirstPhoto(albumId: String?) -> Observable<SearchPhotoEntity?> {
+        let targetAlbumId: Int
+        if let unwrappedAlbumId = albumId, let intAlbumId = Int(unwrappedAlbumId.trimmingCharacters(in: .whitespaces)) {
+            targetAlbumId = intAlbumId
+        } else {
+            targetAlbumId = 1
+        }
+        
+        return API.searchPhoto(albumId: targetAlbumId)
+            .map { $0.map { SearchPhotoEntity($0) }.first }
+    }
+    
+    func searchPhoto(albumId: String?) -> Observable<[SearchPhotoEntity]> {
+        let targetAlbumId: Int
+        if let unwrappedAlbumId = albumId, let intAlbumId = Int(unwrappedAlbumId.trimmingCharacters(in: .whitespaces)) {
+            targetAlbumId = intAlbumId
+        } else {
+            targetAlbumId = 1
+        }
+        
+        return API.searchPhoto(albumId: targetAlbumId)
             .map { $0.map { SearchPhotoEntity($0) } }
     }
 }

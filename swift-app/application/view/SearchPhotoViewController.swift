@@ -15,9 +15,9 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
     @IBOutlet weak var tableView: UITableView!
     
     // private
-    private let searchBar = UISearchBar()
-    private let disposeBag = DisposeBag()
     private let initialAlbumId = 1
+    private let searchController = UISearchController(searchResultsController: nil)
+    private let disposeBag = DisposeBag()
     private let viewModel = SearchPhotoViewModel()
     private var firstPhoto: SearchPhotoEntity?
     private var photoList: [SearchPhotoEntity] = []
@@ -34,18 +34,18 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
         
         tableView.dataSource = self
         tableView.delegate = self
-        searchBar.showsCancelButton = true
-        searchBar.keyboardAppearance = .dark
-        searchBar.keyboardType = .asciiCapableNumberPad
-        searchBar.tintColor = .gray
-        searchBar.barTintColor = .white
-        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        navigationItem.titleView = searchBar
+        searchController.hidesNavigationBarDuringPresentation = true
+        searchController.dimsBackgroundDuringPresentation = true
+        searchController.searchBar.keyboardType = .asciiCapableNumberPad
+        searchController.searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
+        searchController.searchBar.sizeToFit()
+        navigationItem.searchController = searchController
+        title = "Test"
+        definesPresentationContext = true
         
         // API calls
         let firstPhotoDriver = viewModel.searchFirstPhoto(albumId: initialAlbumId)
             .asDriver(onErrorJustReturn: nil)
-        
         let photoDriver = viewModel.searchPhoto(albumId: initialAlbumId)
             .asDriver(
                 onErrorRecover: { [weak self] error in
@@ -60,11 +60,12 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
                         )
                 }
             )
-        let searchDriver = searchBar
+        let searchDriver = searchController
+            .searchBar
             .rx
             .searchButtonClicked
             .asDriver()
-            .withLatestFrom(searchBar.rx.text.orEmpty.asDriver()) { $1 }
+            .withLatestFrom(searchController.searchBar.rx.text.orEmpty.asDriver()) { $1 }
             .flatMapLatest { [weak self] text -> Driver<[SearchPhotoEntity]> in
                 guard let `self` = self, let albumId = Int(text.trimmingCharacters(in: .whitespaces)) else {
                     return Driver.empty()
@@ -84,7 +85,8 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
                         }
                     )
             }
-        let cancelDriver = searchBar
+        let cancelDriver = searchController
+            .searchBar
             .rx
             .cancelButtonClicked
             .asDriver()
@@ -104,11 +106,6 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
                                         self?.handleError(error: error)
                                     }
                                 )
-                        }
-                    )
-                    .do(
-                        onNext: { [weak self] _ in
-                            self?.searchBar.resignFirstResponder()
                         }
                     )
             }
@@ -134,20 +131,6 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: true)
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        searchBar.becomeFirstResponder()
-        searchBar.isUserInteractionEnabled = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        searchBar.resignFirstResponder()
-        searchBar.isUserInteractionEnabled = false
     }
     
     // MARK: UITableViewDataSource

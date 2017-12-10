@@ -24,28 +24,24 @@ struct SearchPhotoEntity {
     }
 }
 
+enum SearchPhotoViewModelError: Error {
+    case missingAlbumId
+}
+
 class SearchPhotoViewModel {
-    func searchFirstPhoto(albumId: String?) -> Observable<SearchPhotoEntity?> {
-        let targetAlbumId: Int
-        if let unwrappedAlbumId = albumId, let intAlbumId = Int(unwrappedAlbumId.trimmingCharacters(in: .whitespaces)) {
-            targetAlbumId = intAlbumId
-        } else {
-            targetAlbumId = 1
+    func searchFirstPhoto(albumId: Int?) -> Observable<SearchPhotoEntity?> {
+        guard let albumId = albumId else {
+            return Observable.error(SearchPhotoViewModelError.missingAlbumId)
         }
-        
-        return API.searchPhoto(albumId: targetAlbumId)
+        return API.searchPhoto(albumId: albumId)
             .map { $0.map { SearchPhotoEntity($0) }.first }
     }
     
-    func searchPhoto(albumId: String?) -> Observable<[SearchPhotoEntity]> {
-        let targetAlbumId: Int
-        if let unwrappedAlbumId = albumId, let intAlbumId = Int(unwrappedAlbumId.trimmingCharacters(in: .whitespaces)) {
-            targetAlbumId = intAlbumId
-        } else {
-            targetAlbumId = 1
+    func searchPhoto(albumId: Int?) -> Observable<[SearchPhotoEntity]> {
+        guard let albumId = albumId else {
+            return Observable.error(SearchPhotoViewModelError.missingAlbumId)
         }
-        
-        return API.searchPhoto(albumId: targetAlbumId)
+        return API.searchPhoto(albumId: albumId)
             .map { $0.map { SearchPhotoEntity($0) } }
     }
 }

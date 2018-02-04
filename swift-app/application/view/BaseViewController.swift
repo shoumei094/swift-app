@@ -17,31 +17,38 @@ class BaseViewController: UIViewController {
     }
     
     func handleError(error: Error) {
-        guard let error = error as? APIError else {
-            let alert = UIAlertController(title: R.string.localizable.genericErrorMessage(), message: nil, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+        guard let apiError = error as? APIError else {
+            handleCustomError(error: error)
             return
         }
         
-        switch error {
-        case .decodeError, .httpError, .otherError:
-            handleErrorExplicitly(error: error, completion: nil)
-            break
+        switch apiError {
+        case .httpError:
+            handleHttpError(error: apiError)
+        case .decodeError,
+             .otherError:
+            let alert = UIAlertController(title: R.string.localizable.genericErrorMessage(), message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
         case .networkError:
             let alert = UIAlertController(title: R.string.localizable.networkConnectionErrorMessage(), message: nil, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
-            break
         case .timeoutError:
             let alert = UIAlertController(title: R.string.localizable.serverBusyErrorMessage(), message: nil, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
-            break
         }
     }
     
-    func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
+    func handleHttpError(error: APIError) {
+        // override in sub-class if necessary
+        let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func handleCustomError(error: Error) {
         // override in sub-class if necessary
     }
 }

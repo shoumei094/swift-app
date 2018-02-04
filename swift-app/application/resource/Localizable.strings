@@ -11,4 +11,5 @@ loadErrorMessage = "Could not load results\nPlease try again later";
 displayErrorMessage = "Could not display page\nPlease try again later";
 
 // SearchPhotoViewController
-searchBarPlaceholder = "Search photos by album (1-100)";
+searchPhotoViewTitle = "Search Photos";
+searchPhotoViewSearchBarPlaceholder = "Search by album ID (1-100)";

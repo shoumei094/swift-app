@@ -15,15 +15,12 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
     @IBOutlet weak var tableView: UITableView!
     
     // private
-    private let searchBar = UISearchBar()
+    private let initialAlbumId = 1
+    private let searchController = UISearchController(searchResultsController: nil)
     private let disposeBag = DisposeBag()
-    private let initialAlbumId = "1"
-    private let viewModel = SearchPhotoViewModel()
-    private var firstPhoto: SearchPhotoEntity?
-    private var photo: [SearchPhotoEntity] = []
+    private var photoList: [SearchPhotoViewModel.SearchPhotoEntity] = []
     private enum Section: Int {
-        case header = 0
-        case list
+        case list = 0
         case count
     }
     
@@ -34,81 +31,55 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
         
         tableView.dataSource = self
         tableView.delegate = self
-        searchBar.showsCancelButton = true
-        searchBar.keyboardAppearance = .dark
-        searchBar.keyboardType = .asciiCapableNumberPad
-        searchBar.tintColor = .gray
-        searchBar.barTintColor = .white
-        searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        navigationItem.titleView = searchBar
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.keyboardType = .numbersAndPunctuation
+        searchController.searchBar.placeholder = R.string.localizable.searchPhotoViewSearchBarPlaceholder()
+        navigationItem.searchController = searchController
+        title = R.string.localizable.searchPhotoViewTitle()
+        definesPresentationContext = true
         
-        // dismiss keyboard when the cancel button is clicked
-        searchBar.rx.cancelButtonClicked
+        let viewModel = SearchPhotoViewModel()
+        let initialSearch = viewModel.searchPhoto(albumId: initialAlbumId)
+        let searchButtonClicked = searchController
+            .searchBar
+            .rx
+            .searchButtonClicked
             .asDriver()
-            .drive(
-                onNext: { [weak self] _ in
-                    self?.searchBar.resignFirstResponder()
-                }
-            )
-            .disposed(by: disposeBag)
-        
-        // API calls
-        let firstPhotoDriver = viewModel.searchFirstPhoto(albumId: initialAlbumId)
-            .asDriver(onErrorJustReturn: nil)
-        let photoDriver = viewModel.searchPhoto(albumId: initialAlbumId)
-            .asDriver(
-                onErrorRecover: { [weak self] error in
-                    self?.handleError(error: error)
-                    return Driver.just([])
-                }
-            )
-        let searchDriver = searchBar.rx.searchButtonClicked
-            .flatMapLatest { [weak self] _ in
-                return self?.viewModel.searchPhoto(albumId: self?.searchBar.text) ?? Observable.empty()
+            .withLatestFrom(searchController.searchBar.rx.text.orEmpty.asDriver()) { $1 }
+            .flatMapLatest { viewModel.searchButtonClicked(searchText: $0) }
+        let cancelButtonClicked = searchController
+            .searchBar
+            .rx
+            .cancelButtonClicked
+            .asDriver()
+            .flatMapLatest { [weak self] _ -> Driver<SearchPhotoViewModel.SearchResult> in
+                return viewModel.searchPhoto(albumId: self?.initialAlbumId)
             }
-            .asDriver(
-                onErrorRecover: { [weak self] error in
-                    self?.handleError(error: error)
-                    return Driver.just([])
-                }
-            )
-        
-        // populate table view
-        Driver.combineLatest(firstPhotoDriver, Driver.merge(photoDriver, searchDriver)) { ($0, $1) }
-            .filter { $0.0.map { _ in true } ?? false && !$0.1.isEmpty }
+        Driver.merge(initialSearch, searchButtonClicked, cancelButtonClicked)
             .drive(
-                onNext: { [weak self] (firstPhoto, photo) in
+                onNext: { [weak self] searchResult in
                     guard let `self` = self else {
                         return
                     }
-                    self.firstPhoto = firstPhoto
-                    self.photo = photo
-                    self.tableView.reloadData()
+                    switch searchResult {
+                    case .success(let result):
+                        self.photoList = result
+                        self.tableView.reloadData()
+                    case .error(let error):
+                        self.handleCustomError(error: error)
+                    }
                 }
             )
             .disposed(by: disposeBag)
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+        super.viewWillAppear(animated)
         
         if let indexPath = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: indexPath, animated: true)
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        searchBar.becomeFirstResponder()
-        searchBar.isUserInteractionEnabled = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        searchBar.resignFirstResponder()
-        searchBar.isUserInteractionEnabled = false
     }
     
     // MARK: UITableViewDataSource
@@ -119,10 +90,8 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case Section.header.rawValue:
-            return firstPhoto.map { _ in 1 } ?? 0
         case Section.list.rawValue:
-            return photo.count
+            return photoList.count
         default:
             return 0
         }
@@ -130,14 +99,9 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
-        case Section.header.rawValue:
-            if let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell.identifier) as? SearchPhotoCell, let entity = firstPhoto {
-                cell.setCell(data: entity)
-                return cell
-            }
         case Section.list.rawValue:
             if let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.searchPhotoCell.identifier) as? SearchPhotoCell  {
-                cell.setCell(data: photo[indexPath.row])
+                cell.setCell(data: photoList[indexPath.row])
                 return cell
             }
         default:
@@ -149,22 +113,22 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
     // MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch indexPath.section {
-        case Section.list.rawValue:
-            if let viewController = R.storyboard.photoArticle.instantiateInitialViewController() {
-                viewController.id = photo[indexPath.row].id
-                navigationController?.pushViewController(viewController, animated: true)
-            }
-        default:
-            return
+        if Section.list.rawValue == indexPath.section, let viewController = R.storyboard.photoArticle.instantiateInitialViewController() {
+            viewController.id = photoList[indexPath.row].id
+            navigationController?.pushViewController(viewController, animated: true)
         }
     }
     
     // MARK: BaseViewController
     
-    override func handleErrorExplicitly(error: APIError, completion: (() -> Void)?) {
-        let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
+    override func handleCustomError(error: Error) {
+        switch error {
+        case SearchPhotoViewModel.ViewModelError.missingAlbumId:
+            fallthrough
+        default:
+            let alert = UIAlertController(title: R.string.localizable.loadErrorMessage(), message: nil, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: R.string.localizable.okAction(), style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
     }
 }

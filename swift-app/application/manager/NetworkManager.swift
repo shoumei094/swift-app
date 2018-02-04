@@ -52,11 +52,11 @@ extension NetworkSocket {
     }
     
     func call() -> Observable<[Model]> {
-        return Observable.create { (observer) in
+        return Observable.create { observer in
             let request = AppSessionManager.sharedManager
                 .request(self.url, method: self.method, parameters: self.parameters, encoding: URLEncoding.default)
                 .validate()
-                .responseJSON { (response) in
+                .responseJSON { response in
                     switch response.result {
                     case .success(let value):
                         if let entity = try? decodeArray(value) as [Model] {
@@ -88,6 +88,6 @@ extension NetworkSocket {
                     }
             }
             return Disposables.create { request.cancel() }
-        }.subscribeOn(ConcurrentDispatchQueueScheduler(qos: .utility))
+        }.subscribeOn(SerialDispatchQueueScheduler(qos: .utility))
     }
 }

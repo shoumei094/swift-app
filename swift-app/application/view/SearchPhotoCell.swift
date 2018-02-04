@@ -13,7 +13,7 @@ class SearchPhotoCell: UITableViewCell {
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var coverImage: UIImageView!
     
-    func setCell(data: SearchPhotoEntity) {
+    func setCell(data: SearchPhotoViewModel.SearchPhotoEntity) {
         title.text = data.title
         
         if let thumbnailUrl = data.thumbnailUrl, let url = URL(string: thumbnailUrl) {

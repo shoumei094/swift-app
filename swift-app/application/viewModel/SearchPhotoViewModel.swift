@@ -7,41 +7,52 @@
 //
 
 import RxSwift
-
-struct SearchPhotoEntity {
-    let albumId: Int
-    let id: Int
-    let title: String
-    let url: String?
-    let thumbnailUrl: String?
-    
-    init(_ entity: PhotoModel) {
-        self.albumId = entity.albumId
-        self.id = entity.id
-        self.title = entity.title
-        self.url = entity.url
-        self.thumbnailUrl = entity.thumbnailUrl
-    }
-}
-
-enum SearchPhotoViewModelError: Error {
-    case missingAlbumId
-}
+import RxCocoa
 
 class SearchPhotoViewModel {
-    func searchFirstPhoto(albumId: Int?) -> Observable<SearchPhotoEntity?> {
-        guard let albumId = albumId else {
-            return Observable.error(SearchPhotoViewModelError.missingAlbumId)
+    struct SearchPhotoEntity {
+        let albumId: Int
+        let id: Int
+        let title: String
+        let url: String?
+        let thumbnailUrl: String?
+        
+        init(_ entity: PhotoModel) {
+            self.albumId = entity.albumId
+            self.id = entity.id
+            self.title = entity.title
+            self.url = entity.url
+            self.thumbnailUrl = entity.thumbnailUrl
         }
-        return API.searchPhoto(albumId: albumId)
-            .map { $0.map { SearchPhotoEntity($0) }.first }
     }
     
-    func searchPhoto(albumId: Int?) -> Observable<[SearchPhotoEntity]> {
+    enum SearchResult {
+        case success(result: [SearchPhotoEntity])
+        case error(error: Error)
+    }
+    
+    enum ViewModelError: Error {
+        case missingAlbumId
+    }
+    
+    func searchButtonClicked(searchText: String?) -> Driver<SearchResult> {
+        guard let searchText = searchText else {
+            return Driver.never()
+        }
+        guard let albumId = Int(searchText.trimmingCharacters(in: .whitespaces)) else {
+            return Driver.never()
+        }
+        return searchPhoto(albumId: albumId)
+    }
+    
+    func searchPhoto(albumId: Int?) -> Driver<SearchResult> {
         guard let albumId = albumId else {
-            return Observable.error(SearchPhotoViewModelError.missingAlbumId)
+            return Driver.just(SearchResult.error(error: ViewModelError.missingAlbumId))
         }
         return API.searchPhoto(albumId: albumId)
-            .map { $0.map { SearchPhotoEntity($0) } }
+            .map { SearchResult.success(result: $0.map { SearchPhotoEntity($0) }) }
+            .asDriver(
+                onErrorRecover: { Driver.just(SearchResult.error(error: $0)) }
+            )
     }
 }

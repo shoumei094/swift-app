@@ -88,6 +88,6 @@ extension NetworkSocket {
                     }
             }
             return Disposables.create { request.cancel() }
-        }.subscribeOn(ConcurrentDispatchQueueScheduler(qos: .utility))
+        }.subscribeOn(SerialDispatchQueueScheduler(qos: .utility))
     }
 }

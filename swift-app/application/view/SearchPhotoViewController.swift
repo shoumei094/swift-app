@@ -31,13 +31,12 @@ class SearchPhotoViewController: BaseViewController, UITableViewDataSource, UITa
         
         tableView.dataSource = self
         tableView.delegate = self
-        searchController.hidesNavigationBarDuringPresentation = true
-        searchController.dimsBackgroundDuringPresentation = true
-        searchController.searchBar.keyboardType = .asciiCapableNumberPad
-        searchController.searchBar.placeholder = R.string.localizable.searchBarPlaceholder()
-        searchController.searchBar.sizeToFit()
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.keyboardType = .numbersAndPunctuation
+        searchController.searchBar.placeholder = R.string.localizable.searchPhotoViewSearchBarPlaceholder()
         navigationItem.searchController = searchController
-        title = "Search Photos"
+        title = R.string.localizable.searchPhotoViewTitle()
         definesPresentationContext = true
         
         let viewModel = SearchPhotoViewModel()
